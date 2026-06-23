@@ -1,100 +1,80 @@
-# Modelo de Predicción de Incumplimiento de Pago
-
-Este modelo de *Machine Learning* es capaz de predecir la **probabilidad
-de incumplimiento de pago** para solicitantes de crédito.\
-La solución abarca desde la **ingesta de datos crudos** hasta el
-**despliegue de un microservicio (API)**.
-
-------------------------------------------------------------------------
-
-## Requisitos del Sistema
-
-Para instalar las librerías necesarias, ejecuta el siguiente comando en
-tu terminal:
-
-``` bash
+# 🏦 Home Credit Default Risk Prediction
+ 
+End-to-end Machine Learning solution to predict the **probability of loan default** for credit applicants — from raw data ingestion to a deployed REST API microservice.
+ 
+---
+ 
+## 📊 Results
+ 
+| Metric | Value |
+|---|---|
+| Algorithm | Logistic Regression (L2) |
+| AUC-ROC | Reported via API |
+| Features engineered | 264 |
+| Scaled features | 63 |
+| Class imbalance handling | `class_weight='balanced'` |
+ 
+---
+ 
+## 🔍 Project Overview
+ 
+This project follows the **CRISP-DM** methodology across 5 phases:
+ 
+### Phase 1 & 2 — EDA & Data Preparation
+**Script:** `02_data_preparation.py`
+ 
+- Consolidated data from `application`, `bureau` and `previous_applications`
+- Feature engineering: **264 variables** including financial ratios and aggregations
+- Null value treatment via **median imputation**
+- Selective standardization with `StandardScaler` applied to **63 continuous variables**
+### Phase 3 & 4 — Modeling & Evaluation
+**Script:** `03_model_training.py`
+ 
+- **Algorithm:** Logistic Regression with L2 penalty — chosen for its high interpretability
+- Used `class_weight='balanced'` to compensate for strong class imbalance (**8% default rate**)
+- **Main metric:** AUC-ROC — appropriate for imbalanced classification problems
+### Phase 5 — Deployment
+**Script:** `05_deployment.py`
+ 
+- REST API built with **FastAPI**
+- Internal preprocessing pipeline that:
+  - Aligns any JSON input with the **264 expected features**
+  - Guarantees operational robustness
+- The more input fields provided, the better the prediction quality
+---
+ 
+## 🛠️ Tech Stack
+ 
+- **Data processing:** Python, Pandas, NumPy
+- **Modeling:** Scikit-learn
+- **API:** FastAPI, Uvicorn
+---
+ 
+## 🚀 Getting Started
+ 
+**1. Install dependencies**
+```bash
 pip install -r requirements.txt
 ```
-
-------------------------------------------------------------------------
-
-## Estructura del Proyecto
-
-El desarrollo se organizó siguiendo las fases de la metodología
-**CRISP-DM**.
-
-### Fases 1 y 2: EDA y Preparacion de los datos
-
-**Script:** `02_data_preparation.py`
-
-En la fase 2 se realizó:
-
--   Consolidación de datos de `application`, `bureau` y
-    `previous_applications`.
--   Ingeniería de características:
-    -   Creación de **264 variables**, incluyendo *ratios* financieros.
--   Tratamiento de valores nulos:
-    -   Imputación por **mediana**.
--   Escalamiento:
-    -   Estandarización selectiva mediante `StandardScaler` aplicada a
-        **63 variables continuas** más relevantes.
-
-------------------------------------------------------------------------
-
-### Fases 3 y 4: Modelado y evaluacion
-
-**Script:** `03_model_training.py`
-
-En las fases 3 y 4 se realizó:
-
--   **Algoritmo:** Regresión Logística con penalización **L2**.
-    -   Se utilizó este modelo dada su **alta interpretabilidad**.
--   Uso de `class_weight='balanced'`:
-    -   Para compensar la baja proporción de clientes con impago
-        (**8%**). Justificado por el fuerte **desbalance de clases**, donde la mayoría corresponde a clientes que **no incumplen**.
--   **Métrica principal:** AUC-ROC.
-    -   Permite evaluar de forma adecuada la capacidad de discriminación
-        del riesgo en contextos desbalanceados.
-
-------------------------------------------------------------------------
-
-### Fase 5: Despliegue
-
-**Script:** `05_deployment.py`
-
--   Despliegue mediante **FastAPI**.
--   La API incluye un **pipeline de preprocesamiento interno** que:
-    -   Alinea cualquier entrada JSON con las **264 características**
-        esperadas por el modelo.
-    -   Garantiza **robustez operativa**.
--   Se recomienda entregar un JSON con la **mayor cantidad de datos
-    posibles** para mejorar la calidad de la predicción.
-
-------------------------------------------------------------------------
-
-## Cómo Ejecutar la API
-
-1.  Abre una terminal en la carpeta del proyecto.
-2.  Inicia el servidor con **Uvicorn**:
-
-``` bash
+ 
+**2. Start the API server**
+```bash
 python -m uvicorn 05_deployment:app --reload
 ```
-
-3.  Accede a la interfaz de pruebas (**Swagger UI**) en:
-
+ 
+**3. Open the Swagger UI**
 ```
-    http://127.0.0.1:8000/docs
-
-------------------------------------------------------------------------
-
-## Ejemplo de Uso
-
-En la interfaz Swagger UI se puede realizar una prueba **POST**
-utilizando el botón **"Try it out"**, enviando un JSON como el
-siguiente:
-
-``` json
+http://127.0.0.1:8000/docs
+```
+ 
+---
+ 
+## 📬 API Usage
+ 
+Send a **POST** request to `/predecir` with a JSON body. The more fields provided, the better the prediction quality.
+ 
+**Example request:**
+```json
 {
   "AMT_INCOME_TOTAL": 1200000,
   "AMT_CREDIT": 150000,
@@ -117,12 +97,9 @@ siguiente:
   "CNT_CHILDREN": 0
 }
 ```
-
-> Este corresponde a un ejemplo de una persona considerada **"ideal"**.
-
-### Respuesta Esperada del Modelo
-
-``` json
+ 
+**Example response:**
+```json
 {
   "probabilidad_incumplimiento": 0.1453,
   "recomendacion": "APROBAR",
@@ -132,3 +109,5 @@ siguiente:
   }
 }
 ```
+ 
+> The example above represents an **ideal applicant profile** with low default risk.
